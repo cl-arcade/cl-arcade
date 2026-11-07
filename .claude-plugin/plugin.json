@@ -7,8 +7,8 @@
     "name": "theBliz",
     "url": "https://github.com/theBliz"
   },
-  "homepage": "https://thebliz.github.io/cl-arcade/",
-  "repository": "https://github.com/theBliz/cl-arcade",
+  "homepage": "https://cl-arcade.github.io/cl-arcade/",
+  "repository": "https://github.com/cl-arcade/cl-arcade",
   "license": "MIT",
   "keywords": [
     "game",

@@ -6,7 +6,7 @@
 
 A pixel arcade that lives in a pane beside your [Claude Code](https://claude.com/claude-code) chat. Play while Claude works; your run pauses when Claude finishes its turn.
 
-**Site and live demo:** https://thebliz.github.io/cl-arcade/  
+**Site and live demo:** https://cl-arcade.github.io/cl-arcade/  
 **Trailer (21 s, sound on):** [docs/media/cl-arcade.mp4](docs/media/cl-arcade.mp4)
 
 ```
@@ -24,7 +24,7 @@ A pixel arcade that lives in a pane beside your [Claude Code](https://claude.com
 Needs Claude Code 2.1.275 or later. At the prompt of a Claude Code session in your terminal:
 
 ```
-/plugin install cl-arcade --marketplace theBliz/cl-arcade
+/plugin install cl-arcade --marketplace cl-arcade/cl-arcade
 ```
 
 Answer `y` to add the marketplace, then press Enter to install for your user. That's it: no extra account, no config.
@@ -32,10 +32,10 @@ Answer `y` to add the marketplace, then press Enter to install for your user. Th
 From a shell instead:
 
 ```
-claude plugin install cl-arcade --marketplace theBliz/cl-arcade
+claude plugin install cl-arcade --marketplace cl-arcade/cl-arcade
 ```
 
-In the Claude Code desktop app: click **+** next to the prompt box, then **Plugins**, **Add marketplace** with `theBliz/cl-arcade`, then **Add plugin**.
+In the Claude Code desktop app: click **+** next to the prompt box, then **Plugins**, **Add marketplace** with `cl-arcade/cl-arcade`, then **Add plugin**.
 
 ## Update
 
