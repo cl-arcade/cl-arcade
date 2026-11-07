@@ -1,0 +1,28 @@
+# OS and editors
+.DS_Store
+*.swp
+*~
+.vscode/
+.idea/
+# logs, packages
+*.log
+node_modules/
+# secrets never go in git: they live in 1Password (op:// references only)
+.env*
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+*.jks
+id_rsa*
+id_dsa*
+id_ecdsa*
+id_ed25519*
+*credentials*.json
+# written by Claude Code, never shared
+.claude/
+.claude-plugin/types/
+/tsconfig.json
+.mcpb-cache/
+*.plugin

@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; media-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>CL Arcade</title>
+  <meta name="description" content="A pixel arcade that lives beside your Claude Code chat. Play while Claude works; it pauses you the moment Claude is done.">
+  <meta name="theme-color" content="#f6efe2">
+  <meta property="og:title" content="CL Arcade: claude's thinking. you're playing.">
+  <meta property="og:description" content="A pixel arcade beside your Claude Code chat. One line to install, free and open source.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://thebliz.github.io/cl-arcade/">
+  <meta property="og:image" content="https://thebliz.github.io/cl-arcade/media/cl-arcade.jpg">
+  <meta property="og:image:width" content="1920">
+  <meta property="og:image:height" content="1080">
+  <meta property="og:image:alt" content="CL ARCADE in rainbow pixel letters, the line IDLE TIME IS NOW PLAY TIME., the install command and two pixel runners on a ground strip">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' rx='3' fill='%231c1410'/%3E%3Cpath fill='%235cc35c' d='M8 3h5v3H8zM4 7h8v3H4zM3 8h1v2H3zM5 10h2v3H5zM9 10h2v3H9z'/%3E%3Crect x='11' y='4' width='1' height='1' fill='%231c1410'/%3E%3Cpath fill='%23ff9b2f' d='M5 6h1v1H5zM7 6h1v1H7z'/%3E%3C/svg%3E">
+  <link rel="canonical" href="https://thebliz.github.io/cl-arcade/">
+  <style>
+    /* Geist and Geist Mono, self-hosted (SIL Open Font License, see fonts/OFL.txt): no third-party requests. */
+    @font-face {
+      font-family: "Geist"; font-style: normal; font-weight: 400 900; font-display: swap;
+      src: url("./fonts/geist-latin.woff2") format("woff2");
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: "Geist Mono"; font-style: normal; font-weight: 400 700; font-display: swap;
+      src: url("./fonts/geist-mono-latin.woff2") format("woff2");
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: "Geist Mono"; font-style: normal; font-weight: 400 700; font-display: swap;
+      src: url("./fonts/geist-mono-symbols.woff2") format("woff2");
+      unicode-range: U+2000-2001, U+2004-2008, U+200A, U+23B8-23BD, U+2500-259F;
+    }
+    :root {
+      /* paper and arcade-purple ink, with the game's own pixel colours as accents */
+      --paper: oklch(96% 0.025 85);
+      --paper-grid: oklch(90% 0.03 85);
+      --ink: oklch(19% 0.035 290);
+      --ink-soft: oklch(36% 0.03 290);
+      --terra: #e5793f; /* our own orange: deliberately not Claude's logo colour */
+      --yellow: #ffd54f;
+      --green: #7fd88f;
+      --hero-bg: var(--paper);
+      --hero-ink: var(--ink);
+      --hero-ink-soft: var(--ink-soft);
+      --hero-tint: var(--paper);
+      --dark-bg: oklch(15% 0.03 290);
+      --dark-bg-elev: oklch(19.5% 0.035 290);
+      --dark-ink: oklch(95% 0.015 290);
+      --dark-ink-soft: oklch(73% 0.03 290);
+      --dark-rule: oklch(28% 0.035 290);
+      --dark-accent: var(--green);
+      --screen: #15110e;
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --sans: "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
+      --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+      --page: 1240px;
+      --gutter: clamp(16px, 3vw, 40px);
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--dark-bg);
+      color: var(--dark-ink);
+      font-family: var(--sans);
+      font-size: 17px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    a { color: inherit; }
+    img, video, canvas { max-width: 100%; }
+    .wrap { width: 100%; max-width: var(--page); margin: 0 auto; padding: 0 var(--gutter); }
+
+    /* ------------------------------------------------ hero */
+    .hero {
+      background-color: var(--hero-bg);
+      /* a faint pixel grid, like graph paper for sprites */
+      background-image:
+        linear-gradient(var(--paper-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--paper-grid) 1px, transparent 1px);
+      background-size: 24px 24px;
+      background-position: -1px -1px;
+      color: var(--hero-ink);
+      padding: clamp(16px, 2.4vw, 28px) 0 clamp(56px, 8vw, 110px);
+      position: relative;
+      overflow: hidden;
+    }
+    .topbar {
+      display: flex; align-items: baseline; justify-content: space-between; gap: 24px;
+      font-family: var(--mono); font-size: 13px; letter-spacing: -0.005em;
+    }
+    .wordmark { font-weight: 700; text-decoration: none; }
+    .wordmark span { opacity: .7; font-weight: 500; }
+    .topbar nav { display: flex; gap: 20px; }
+    .topbar nav a { text-decoration: none; border-bottom: 1.5px solid transparent; }
+    .topbar nav a:hover { border-bottom-color: currentColor; }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+      gap: clamp(28px, 4vw, 64px);
+      align-items: center;
+      margin-top: clamp(40px, 7vw, 96px);
+    }
+    .slash {
+      display: inline-block;
+      font-family: var(--mono); font-size: 14px; font-weight: 700;
+      background: var(--hero-ink); color: var(--yellow);
+      padding: 4px 10px; border-radius: var(--radius-sm);
+      transform: rotate(-3deg);
+      margin-bottom: 22px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(48px, 6.6vw, 98px);
+      line-height: .92;
+      font-weight: 900;
+      letter-spacing: -0.045em;
+      text-transform: lowercase;
+    }
+    h1 .mark {
+      background: linear-gradient(transparent 58%, var(--yellow) 58%, var(--yellow) 92%, transparent 92%);
+      padding: 0 .04em;
+    }
+    .sub {
+      margin: 26px 0 0;
+      max-width: 34ch;
+      font-size: clamp(18px, 1.5vw, 22px);
+      line-height: 1.4;
+      font-weight: 500;
+      letter-spacing: -0.012em;
+      color: var(--hero-ink-soft);
+    }
+    .sub strong { font-weight: 800; color: var(--hero-ink); }
+
+    .install {
+      margin-top: 30px;
+      display: flex; align-items: stretch;
+      max-width: 620px;
+      background: var(--hero-ink);
+      color: var(--hero-tint);
+      border-radius: var(--radius-md);
+      box-shadow: 8px 8px 0 0 var(--terra);
+      font-family: var(--mono);
+      font-size: clamp(13px, 1.1vw, 15px);
+    }
+    .install code {
+      flex: 1; min-width: 0;
+      padding: 15px 18px;
+      line-height: 1.6;
+    }
+    .install code .line { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .install code .p { color: var(--green); user-select: none; }
+    .install code .m { color: oklch(78% 0.04 290); padding-left: 2ch; }
+    .copy {
+      flex: none;
+      border: 0; cursor: pointer;
+      font: inherit; font-weight: 700;
+      padding: 0 20px;
+      background: var(--yellow); color: var(--ink);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      transition: filter .2s var(--ease-out);
+    }
+    .copy:hover { filter: brightness(1.08); }
+    .copy:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
+    .bullets {
+      list-style: none; margin: 22px 0 0; padding: 0;
+      display: flex; flex-wrap: wrap; gap: 8px 22px;
+      font-family: var(--mono); font-size: 13px; font-weight: 500;
+    }
+    .bullets li::before { content: "✦ "; color: var(--terra); }
+    .unofficial { margin: 14px 0 0; font-family: var(--mono); font-size: 12px; color: var(--ink-soft); }
+
+    /* the mock Claude Code window */
+    .term {
+      background: var(--screen);
+      border-radius: var(--radius-lg);
+      box-shadow: 10px 10px 0 0 var(--hero-ink);
+      border: 2px solid var(--hero-ink);
+      overflow: hidden;
+      transform: rotate(.8deg);
+      transition: transform .5s var(--ease-out);
+    }
+    .term:hover, .term:focus-within { transform: rotate(0deg); }
+    .term-bar {
+      display: flex; align-items: center; gap: 7px;
+      padding: 11px 14px;
+      background: #201915;
+      font-family: var(--mono); font-size: 12px; color: #9b8e85;
+    }
+    .dot { width: 11px; height: 11px; border-radius: 50%; background: #3a2f29; }
+    .dot:nth-child(1) { background: #ef5350; } .dot:nth-child(2) { background: #ffd54f; } .dot:nth-child(3) { background: #7cb342; }
+    .term-bar .title { margin-left: 8px; }
+    .chat {
+      padding: 14px 16px 6px;
+      font-family: var(--mono); font-size: clamp(11.5px, 1vw, 13px);
+      color: #cfc4bb; line-height: 1.55;
+    }
+    .chat .you { color: #8a8a8a; }
+    .chat .you b { color: #e8ddd4; font-weight: 500; }
+    .chat .claude { color: #d97757; }
+    .chat .working::after { content: "▍"; animation: blink 1s steps(1) infinite; margin-left: 2px; }
+    @keyframes blink { 50% { opacity: 0; } }
+    .pane {
+      margin: 8px 12px 0;
+      border: 1px solid #3a2f29;
+      border-radius: 8px;
+      padding: 6px;
+      position: relative;
+    }
+    .pane-label {
+      position: absolute; top: -9px; left: 12px;
+      background: var(--screen); padding: 0 6px;
+      font-family: var(--mono); font-size: 11px; color: #9b8e85;
+    }
+    #arcade {
+      display: block; width: 100%; height: auto;
+      image-rendering: pixelated;
+      cursor: pointer;
+      border-radius: 4px;
+      outline: none;
+      touch-action: manipulation;
+    }
+    #arcade:focus-visible { box-shadow: 0 0 0 2px var(--dark-accent); }
+    .pads {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      padding: 12px 12px 14px;
+      font-family: var(--mono); font-size: 12px;
+    }
+    .pad {
+      font: inherit; cursor: pointer;
+      color: #e8ddd4; background: #241c17;
+      border: 1px solid #3a2f29; border-radius: 999px;
+      padding: 7px 13px;
+      touch-action: manipulation; user-select: none; -webkit-user-select: none;
+    }
+    .pad:hover { border-color: #6b5a4f; }
+    .pad:active { transform: translateY(1px); }
+    .pad.finish { margin-left: auto; color: var(--screen); background: #7fd88f; border-color: #7fd88f; font-weight: 700; }
+    .prompt {
+      border-top: 1px solid #2a221d;
+      padding: 10px 16px 12px;
+      font-family: var(--mono); font-size: 12px; color: #9b8e85;
+    }
+
+    /* ------------------------------------------------ dark sections */
+    section.dark { padding: clamp(72px, 10vw, 140px) 0; border-top: 1px solid var(--dark-rule); }
+    .kicker {
+      font-family: var(--mono); font-size: 13px; font-weight: 500;
+      text-transform: uppercase; letter-spacing: .08em;
+      color: var(--dark-accent);
+      margin: 0 0 18px;
+    }
+    h2 {
+      margin: 0;
+      font-size: clamp(40px, 5.4vw, 80px);
+      line-height: .95;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      text-transform: lowercase;
+      max-width: 15ch;
+    }
+    .lead { margin: 22px 0 0; max-width: 52ch; color: var(--dark-ink-soft); font-size: clamp(17px, 1.4vw, 20px); }
+
+    .steps { list-style: none; margin: clamp(40px, 5vw, 64px) 0 0; padding: 0; counter-reset: step; display: grid; gap: 2px; }
+    .steps li {
+      counter-increment: step;
+      display: grid; grid-template-columns: clamp(56px, 7vw, 96px) minmax(0, 1fr); gap: 16px;
+      align-items: baseline;
+      padding: clamp(20px, 2.6vw, 30px) 0;
+      border-bottom: 1px solid var(--dark-rule);
+    }
+    .steps li::before {
+      content: "0" counter(step);
+      font-family: var(--mono); font-size: clamp(14px, 1.2vw, 16px); font-weight: 700;
+      color: var(--dark-accent);
+    }
+    .steps h3 {
+      margin: 0;
+      font-size: clamp(26px, 3vw, 42px); line-height: 1.05;
+      font-weight: 800; letter-spacing: -0.03em; text-transform: lowercase;
+    }
+    .steps p { margin: 8px 0 0; color: var(--dark-ink-soft); max-width: 56ch; }
+    .steps code, .lead code, .faq code {
+      font-family: var(--mono); font-size: .9em;
+      background: var(--dark-bg-elev); border: 1px solid var(--dark-rule);
+      padding: 1px 6px; border-radius: var(--radius-sm); color: var(--dark-ink);
+    }
+
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: clamp(16px, 2vw, 24px); margin-top: clamp(40px, 5vw, 64px); }
+    .card {
+      position: relative;
+      background: var(--dark-bg-elev);
+      border: 1px solid var(--dark-rule);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      transition: transform .4s var(--ease-out), box-shadow .4s var(--ease-out);
+    }
+    .card:hover { transform: translate(-3px, -3px); box-shadow: 6px 6px 0 0 var(--yellow); }
+    .card canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; background: var(--screen); border-radius: var(--radius-md); }
+    .card h3 { margin: 18px 0 4px; font-size: 26px; font-weight: 800; letter-spacing: -0.03em; text-transform: lowercase; }
+    .card p { margin: 0; color: var(--dark-ink-soft); font-size: 15.5px; }
+    .tag {
+      display: inline-block; margin-top: 14px;
+      font-family: var(--mono); font-size: 12px; font-weight: 700;
+      padding: 4px 9px; border-radius: 999px;
+      background: var(--dark-accent); color: var(--dark-bg);
+    }
+    .card.soon canvas { filter: grayscale(1) brightness(.7); }
+    .card.soon .tag { background: transparent; color: #e5c07b; border: 1px dashed #e5c07b; }
+    .sticker {
+      position: absolute; top: -12px; right: 16px;
+      z-index: 2; /* above the greyscale canvas, whose filter gives it a layer of its own */
+      background: #ffd54f; color: var(--hero-ink);
+      font-family: var(--mono); font-size: 12px; font-weight: 700;
+      padding: 5px 10px; border-radius: var(--radius-sm);
+      transform: rotate(6deg);
+      box-shadow: 3px 3px 0 0 var(--hero-ink);
+    }
+
+    .faq { margin-top: clamp(32px, 4vw, 48px); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 28px 40px; }
+    .faq h3 { margin: 0 0 6px; font-size: 19px; font-weight: 700; letter-spacing: -0.015em; }
+    .faq p { margin: 0; color: var(--dark-ink-soft); font-size: 15.5px; }
+
+    /* light section: the hero's paper again, with ink-outlined cards */
+    section.light {
+      background-color: var(--paper);
+      background-image:
+        linear-gradient(var(--paper-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--paper-grid) 1px, transparent 1px);
+      background-size: 24px 24px;
+      color: var(--ink);
+      border-top: 0;
+    }
+    .light .kicker { color: #9a4a30; } /* terracotta, darkened to read on paper */
+    .light .lead { color: var(--ink-soft); }
+    .light .card {
+      background: #fffdf8;
+      border: 2px solid var(--ink);
+      box-shadow: 6px 6px 0 0 var(--ink);
+    }
+    .light .card:hover { box-shadow: 10px 10px 0 0 var(--terra); }
+    .light .card p { color: var(--ink-soft); }
+    .light .tag { background: var(--ink); color: var(--yellow); }
+
+    /* purple section: the cabinet, under a strip of marquee lights */
+    section.purple {
+      --purple: oklch(29% 0.12 295);
+      background: var(--purple);
+      border-top: 0;
+      position: relative;
+    }
+    .purple .kicker { color: var(--yellow); }
+    .purple .card { background: oklch(23% 0.09 295); border-color: oklch(40% 0.1 295); }
+    .purple .card p { color: oklch(80% 0.04 295); }
+    .lights {
+      position: absolute; top: 0; left: 0; right: 0; height: 14px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='14'%3E%3Cg%3E%3Ccircle cx='10' cy='7' r='3.5' fill='%23ff9b2f'/%3E%3Ccircle cx='30' cy='7' r='3.5' fill='%23ffd54f'/%3E%3Ccircle cx='50' cy='7' r='3.5' fill='%239b6ddb'/%3E%3Ccircle cx='70' cy='7' r='3.5' fill='%234fc3f7'/%3E%3Ccircle cx='90' cy='7' r='3.5' fill='%23ef5350'/%3E%3Ccircle cx='110' cy='7' r='3.5' fill='%237fd88f'/%3E%3C/g%3E%3C/svg%3E");
+      background-repeat: repeat-x;
+      background-color: oklch(17% 0.05 295);
+      animation: chase 2.4s steps(6) infinite;
+    }
+    @keyframes chase { to { background-position: 120px 0; } }
+
+    section.faq-section { border-top: 0; }
+
+    /* the trailer: a framed screen on the arcade purple */
+    .trailer .lights { position: absolute; }
+    .trailer .lead { color: oklch(84% 0.04 295); }
+    .screen-frame {
+      position: relative;
+      margin: clamp(40px, 5vw, 64px) 0 0;
+      max-width: 1100px;
+    }
+    .rated {
+      position: absolute; top: -16px; left: 22px; z-index: 2;
+      background: var(--terra); color: var(--ink);
+      font-family: var(--mono); font-size: 13px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .04em;
+      padding: 6px 12px; border-radius: var(--radius-sm);
+      transform: rotate(-4deg);
+      box-shadow: 3px 3px 0 0 var(--ink);
+    }
+    .screen-frame video {
+      display: block; width: 100%; height: auto;
+      aspect-ratio: 16 / 9;
+      background: var(--screen);
+      border: 2px solid var(--ink);
+      border-radius: var(--radius-md);
+      box-shadow: 10px 10px 0 0 var(--yellow);
+    }
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+    }
+
+    /* ------------------------------------------------ closing */
+    .closing { background: var(--yellow); color: var(--ink); padding: clamp(72px, 10vw, 140px) 0; }
+    .closing .install { box-shadow: 8px 8px 0 0 var(--ink); }
+    .closing .copy { background: var(--paper); }
+    .closing h2 { max-width: 13ch; }
+    .closing .install { margin-top: 36px; }
+    footer {
+      padding: 28px 0 36px;
+      font-family: var(--mono); font-size: 12.5px; color: var(--dark-ink-soft);
+    }
+    footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 28px; }
+    footer a { color: var(--dark-ink); }
+    .fine { max-width: 70ch; }
+
+    @media (max-width: 900px) {
+      /* minmax(0, …): a plain 1fr column can't shrink below its widest unbreakable content, and pushes past the screen */
+      .hero-grid { grid-template-columns: minmax(0, 1fr); }
+      .term { transform: none; }
+      .sub { max-width: 40ch; }
+    }
+    @media (max-width: 520px) {
+      .topbar nav a.hide-sm { display: none; }
+      .install { box-shadow: 5px 5px 0 0 var(--terra); flex-direction: column; }
+      .closing .install { box-shadow: 5px 5px 0 0 var(--ink); }
+      /* the command wraps instead of being cut; the button still copies it as one line */
+      .install code .line { white-space: normal; overflow-wrap: anywhere; text-overflow: clip; }
+      .install code .m { padding-left: 0; }
+      .copy { border-radius: 0 0 var(--radius-md) var(--radius-md); padding: 12px 20px; }
+      .pad.finish { margin-left: 0; }
+      .rated { left: 12px; font-size: 11px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      .term { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <div class="topbar">
+        <a class="wordmark" href="./">cl-arcade <span>v1.0</span></a>
+        <nav>
+          <a href="#trailer" class="hide-sm">trailer</a>
+          <a href="#how" class="hide-sm">how it works</a>
+          <a href="#runners" class="hide-sm">runners</a>
+          <a href="https://github.com/theBliz/cl-arcade">github ↗</a>
+        </nav>
+      </div>
+
+      <div class="hero-grid">
+        <div>
+          <span class="slash">/arcade</span>
+          <h1>claude's thinking.<br>you're <span class="mark">playing.</span></h1>
+          <p class="sub">A pixel arcade that lives <strong>beside your Claude Code chat</strong>. Jump, duck and roar while Claude works. It pauses you the second Claude is done.</p>
+
+          <div class="install">
+            <code id="cmd"><span class="line"><span class="p">&gt; </span>/plugin install cl-arcade</span><span class="line m">--marketplace theBliz/cl-arcade</span></code>
+            <button class="copy" type="button">copy</button>
+          </div>
+          <ul class="bullets">
+            <li>free &amp; open source</li>
+            <li>one line, no extra account</li>
+            <li>knows when Claude's done</li>
+          </ul>
+          <p class="unofficial">unofficial fan project · not made by or affiliated with Anthropic</p>
+        </div>
+
+        <div class="term" role="group" aria-label="A Claude Code session with the arcade open">
+          <div class="term-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="title">~/my-app · claude</span></div>
+          <div class="chat">
+            <div class="you">&gt; <b>refactor the billing module and add tests</b></div>
+            <div class="claude" id="claude-line"><span class="working">✻ Working… (esc to interrupt)</span></div>
+          </div>
+          <div class="pane">
+            <span class="pane-label">CL Arcade</span>
+            <canvas id="arcade" tabindex="0" role="application" aria-label="CL Arcade, playable. Click to insert a coin, then use the arrow keys and space."></canvas>
+          </div>
+          <div class="pads" role="group" aria-label="On-screen controls">
+            <button class="pad" data-key="up" type="button">↑ jump</button>
+            <button class="pad" data-key="down" data-hold type="button">↓ duck</button>
+            <button class="pad" data-key="r" type="button">r roar</button>
+            <button class="pad" data-key="m" type="button">m menu</button>
+            <button class="pad finish" id="finish" type="button">✓ pretend Claude finished</button>
+          </div>
+          <div class="prompt">&gt; <span id="prompt-hint" aria-live="polite">click the arcade to insert a coin</span></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="dark purple trailer" id="trailer">
+      <div class="lights" aria-hidden="true"></div>
+      <div class="wrap">
+        <p class="kicker">the trailer</p>
+        <h2>now playing in a terminal near you.</h2>
+        <p class="lead">Showtimes: every time Claude thinks.</p>
+        <figure class="screen-frame">
+          <span class="rated" aria-hidden="true">rated W · for waiting</span>
+          <video controls playsinline preload="none" width="1920" height="1080" poster="./media/cl-arcade.jpg" aria-describedby="trailer-desc">
+            <source src="./media/cl-arcade.mp4" type="video/mp4">
+            <a href="./media/cl-arcade.mp4">Download the trailer (MP4, 2 MB)</a>
+          </video>
+          <figcaption id="trailer-desc" class="sr-only">Trailer, 21 seconds. A Working… timer races up, then the arcade opens. Dino Roar: jump, duck, roar. Pick Dino or Clawd. The run pauses when Claude is done. It ends on the install line.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="dark" id="how">
+      <div class="wrap">
+        <p class="kicker">how it works</p>
+        <h2>idle time is now play time.</h2>
+        <p class="lead">Long tasks mean staring at a spinner. CL Arcade turns that wait into a quick run, right in the terminal, without leaving your session.</p>
+        <ol class="steps">
+          <li><div><h3>install. one line.</h3><p>Paste <code>/plugin install cl-arcade --marketplace theBliz/cl-arcade</code> into Claude Code and answer <code>y</code>. No account, no config.</p></div></li>
+          <li><div><h3>type /arcade.</h3><p>A cabinet opens in a pane beside the chat. Click it to insert a coin (that hands it the keyboard), pick a game and a runner.</p></div></li>
+          <li><div><h3>play while it works.</h3><p>The top bar counts how long Claude has been at it. When Claude finishes its turn, your run pauses with a banner. <code>Esc</code> takes you back to the prompt.</p></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="dark light" id="runners">
+      <div class="wrap">
+        <p class="kicker">the runners</p>
+        <h2>pick your runner.</h2>
+        <div class="cards">
+          <article class="card">
+            <canvas data-runner="dino" width="96" height="60"></canvas>
+            <h3>dino</h3>
+            <p>Green, spiky, a little dramatic. Fill the meter and <b>ROAR</b> to blast the next bug off the screen.</p>
+            <span class="tag">R · ROAR</span>
+          </article>
+          <article class="card">
+            <canvas data-runner="clawd" width="96" height="60"></canvas>
+            <h3>clawd</h3>
+            <p>A small terracotta critter on four busy legs. Charge up and <b>SPARK</b> anything in your way.</p>
+            <span class="tag">R · SPARK</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="dark purple" id="games">
+      <div class="lights" aria-hidden="true"></div>
+      <div class="wrap">
+        <p class="kicker">the cabinet</p>
+        <h2>one game in. more coming.</h2>
+        <div class="cards">
+          <article class="card">
+            <canvas data-game="0" width="96" height="44"></canvas>
+            <h3>dino roar</h3>
+            <p>An endless runner inspired by the dinosaur game on Google Chrome's offline page (not affiliated with Google). Jump bugs, duck glitches, roar. ← / → to brake or boost for more points.</p>
+            <span class="tag">play now</span>
+          </article>
+          <article class="card soon">
+            <span class="sticker">soon™</span>
+            <canvas data-game="1" width="96" height="44"></canvas>
+            <h3>bug blaster</h3>
+            <p>The bugs fight back. Clear the screen before the next build.</p>
+            <span class="tag">coming soon</span>
+          </article>
+          <article class="card soon">
+            <span class="sticker">soon™</span>
+            <canvas data-game="2" width="96" height="44"></canvas>
+            <h3>token tower</h3>
+            <p>Stack tokens as high as the context window allows.</p>
+            <span class="tag">coming soon</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="dark faq-section" id="faq">
+      <div class="wrap">
+        <p class="kicker">questions</p>
+        <h2>the small print.</h2>
+        <div class="faq">
+          <div><h3>Where does it run?</h3><p>Claude Code 2.1.275 or later, in a terminal. Tested on macOS; other terminals and the desktop app should work too. Editor extensions and mobile can't host the live game, so the pane says so.</p></div>
+          <div><h3>Does it slow Claude down?</h3><p>Not noticeably. It adds no requests or tokens, and it only notes when Claude starts and finishes a turn: it never reads, stores, changes or sends your code, your prompts or Claude's answers. While the pane is open, the game uses a little CPU.</p></div>
+          <div><h3>How do I uninstall?</h3><p><code>/plugin uninstall cl-arcade</code>, then <code>/plugin marketplace remove cl-arcade</code>. Your best score, runner and auto-open setting sit in a small file under <code>~/.claude/plugins/store/</code>; delete it for a clean slate.</p></div>
+          <div><h3>Why "cl"?</h3><p>Claude, or command line. Both are true: it's an arcade for the terminal, built for the time Claude spends thinking.</p></div>
+          <div><h3>Can I add a game?</h3><p>Yes, it's MIT-licensed. The whole engine is one file, <code>hooks/game.ts</code>. Pull requests welcome on GitHub.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="closing">
+      <div class="wrap">
+        <h2>stop staring at the spinner.</h2>
+        <div class="install">
+          <code><span class="line"><span class="p">&gt; </span>/plugin install cl-arcade</span><span class="line m">--marketplace theBliz/cl-arcade</span></code>
+          <button class="copy" type="button">copy</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>made by <a href="https://github.com/theBliz">theBliz</a> · <a href="https://github.com/theBliz/cl-arcade">source</a> · MIT</span>
+      <span class="fine">Unofficial fan project, not affiliated with or endorsed by Anthropic or Google. Claude and Claude Code are trademarks of Anthropic, and Clawd, Claude Code's mascot, appears here as fan art; Chrome is a trademark of Google LLC.</span>
+      <span class="fine">Privacy: hosted on GitHub Pages, which logs visitors' IP addresses. This page sets no cookies, runs no analytics and makes no third-party requests; the demo keeps your best score in this browser only.</span>
+    </div>
+  </footer>
+
+  <script type="module" src="./site.js"></script>
+</body>
+</html>

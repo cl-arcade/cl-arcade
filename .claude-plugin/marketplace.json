@@ -1,0 +1,15 @@
+{
+  "name": "cl-arcade",
+  "description": "Unofficial: CL Arcade, a pixel arcade that opens beside the Claude Code chat. Play while Claude works. Not affiliated with Anthropic.",
+  "owner": {
+    "name": "theBliz",
+    "url": "https://github.com/theBliz"
+  },
+  "plugins": [
+    {
+      "name": "cl-arcade",
+      "source": "./",
+      "description": "Unofficial: play pixel arcade games beside the chat while Claude works. Not affiliated with Anthropic."
+    }
+  ]
+}

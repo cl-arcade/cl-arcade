@@ -1,0 +1,21 @@
+{
+  "name": "cl-arcade",
+  "displayName": "CL Arcade",
+  "version": "1.0.0",
+  "description": "Unofficial: an arcade cabinet beside the Claude Code chat. Play pixel games while Claude works; the run pauses when Claude finishes. Not affiliated with Anthropic.",
+  "author": {
+    "name": "theBliz",
+    "url": "https://github.com/theBliz"
+  },
+  "homepage": "https://thebliz.github.io/cl-arcade/",
+  "repository": "https://github.com/theBliz/cl-arcade",
+  "license": "MIT",
+  "keywords": [
+    "game",
+    "arcade",
+    "fun",
+    "idle",
+    "pane"
+  ],
+  "types": "./types/index.d.ts"
+}
