@@ -96,7 +96,7 @@
       overflow: hidden;
     }
     .topbar {
-      display: flex; align-items: baseline; justify-content: space-between; gap: 24px;
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px;
       font-family: var(--mono); font-size: 13px; letter-spacing: -0.005em;
     }
     .wordmark { font-weight: 700; text-decoration: none; }
@@ -104,6 +104,25 @@
     .topbar nav { display: flex; gap: 20px; }
     .topbar nav a { text-decoration: none; border-bottom: 1.5px solid transparent; }
     .topbar nav a:hover { border-bottom-color: currentColor; }
+
+    /* star on github: a pill in the page's brutalist style */
+    .star, .topbar nav a.star {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-family: var(--mono); font-size: 13px; font-weight: 700;
+      text-decoration: none; white-space: nowrap;
+      color: var(--ink); background: var(--yellow);
+      border: 2px solid var(--ink); border-radius: 999px;
+      padding: 5px 13px;
+      box-shadow: 3px 3px 0 0 var(--ink);
+      transition: transform .2s var(--ease-out), box-shadow .2s var(--ease-out);
+    }
+    .star:hover, .topbar nav a.star:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 0 var(--ink); border-color: var(--ink); }
+    .star:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+    .star .icon { font-size: 15px; line-height: 1; }
+    .topbar nav { align-items: center; }
+    .star-cta { margin: 28px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; font-family: var(--mono); font-size: 14px; }
+    .closing .star { font-size: 15px; padding: 9px 18px; background: var(--ink); color: var(--yellow); box-shadow: 4px 4px 0 0 var(--paper); }
+    .closing .star:hover { box-shadow: 6px 6px 0 0 var(--paper); }
 
     .hero-grid {
       display: grid;
@@ -426,6 +445,7 @@
     }
     @media (max-width: 520px) {
       .topbar nav a.hide-sm { display: none; }
+      .wordmark span { display: none; } /* the version tag: room for the star pill at 320 px */
       .install { box-shadow: 5px 5px 0 0 var(--terra); flex-direction: column; }
       .closing .install { box-shadow: 5px 5px 0 0 var(--ink); }
       /* the command wraps instead of being cut; the button still copies it as one line */
@@ -450,7 +470,7 @@
           <a href="#trailer" class="hide-sm">trailer</a>
           <a href="#how" class="hide-sm">how it works</a>
           <a href="#runners" class="hide-sm">runners</a>
-          <a href="https://github.com/cl-arcade/cl-arcade">github ↗</a>
+          <a class="star" href="https://github.com/cl-arcade/cl-arcade"><span class="icon" aria-hidden="true">★</span> star on github</a>
         </nav>
       </div>
 
@@ -598,6 +618,7 @@
           <code><span class="line"><span class="p">&gt; </span>/plugin install cl-arcade</span><span class="line m">--marketplace cl-arcade/cl-arcade</span></code>
           <button class="copy" type="button">copy</button>
         </div>
+        <p class="star-cta"><a class="star" href="https://github.com/cl-arcade/cl-arcade"><span class="icon" aria-hidden="true">★</span> star cl-arcade on github</a> <span>it's how other people find it.</span></p>
       </div>
     </section>
   </main>

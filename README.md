@@ -1,5 +1,7 @@
 # CL Arcade
 
+[![GitHub stars](https://img.shields.io/github/stars/cl-arcade/cl-arcade?style=social)](https://github.com/cl-arcade/cl-arcade/stargazers)
+
 **claude's thinking. you're playing.** (cl: Claude, or command line. Both are true.)
 
 *Unofficial fan project: not made by or affiliated with Anthropic.*
@@ -96,6 +98,8 @@ A Claude Code plugin made of one hooks module and one surface module, no depende
 Releasing: bump `version` in `.claude-plugin/plugin.json` for every release. Installed copies stay on the version they have until it changes.
 
 Ideas and new games welcome: open an issue or a pull request.
+
+If CL Arcade made a long wait better, **[star the repo](https://github.com/cl-arcade/cl-arcade)**: it's how other people find it. ★
 
 ## License and trademarks
 
